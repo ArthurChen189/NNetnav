@@ -147,7 +147,7 @@ def config() -> argparse.Namespace:
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--top_p", type=float, default=0.9)
     parser.add_argument("--context_length", type=int, default=0)
-    parser.add_argument("--max_tokens", type=int, default=512)
+    parser.add_argument("--max_tokens", type=int, default=384)
     parser.add_argument("--stop_token", type=str, default=None)
     parser.add_argument("--inp_task_file", type=str, default="")
     parser.add_argument("--num_instructions", type=int, default=1)
@@ -287,8 +287,8 @@ if __name__ == "__main__":
     else:
         chat_model_args = SelfHostedModelArgs(
             model_name=args.model,
-            max_total_tokens=20000,
-            max_input_tokens=20000 - 512,
+            max_total_tokens=args.max_obs_length,
+            max_input_tokens=args.max_obs_length - args.max_tokens,
             max_new_tokens=args.max_tokens,
             backend="vllm",
             n_retry_server=4,

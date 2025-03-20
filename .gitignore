@@ -1,3 +1,7 @@
-**/__pycache__/
+**/__pycache__/**
+log_files/
+*.ipynb
+my_webarena*/**
 nnetnav.egg-info/
 *.jsonl
+export_envvars_openai.sh

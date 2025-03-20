@@ -1,5 +1,6 @@
 # load all the environment variables
-source export_envvars.sh
+source export_envvars_wa.sh
+source export_envvars_openai.sh
 export TOKENIZER_DIR="stanfordnlp/llama8b-nnetnav-wa"
 
 MODEL=stanfordnlp/llama8b-nnetnav-wa
