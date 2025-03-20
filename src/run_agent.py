@@ -51,7 +51,7 @@ from bgym import ExpArgs, EnvArgs
 from nnetnav_registry import ALL_OPENENDED_WEBARENA_TASK_IDS, ALL_OPENWEB_TASK_IDS
 from webvoyager_registry import ALL_WEBVOYAGER_TASK_IDS
 
-from evaluation_harness import evaluator_router
+from evaluation.evaluation_harness import evaluator_router
 from agent import InstructionGenerator
 from joblib import Parallel, delayed
 from agentlab.experiments import args as agentlab_args
@@ -60,8 +60,7 @@ from agentlab.experiments.launch_exp import find_incomplete, run_experiments
 from agentlab.agents.generic_agent.agent_configs import FLAGS_GPT_4o
 from agentlab.llm.chat_api import (
     SelfHostedModelArgs,
-    OpenRouterModelArgs,
-    TogetherAIModelArgs,
+    OpenRouterModelArgs
 )
 
 LOG_FOLDER = "log_files"
@@ -148,7 +147,7 @@ def config() -> argparse.Namespace:
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--top_p", type=float, default=0.9)
     parser.add_argument("--context_length", type=int, default=0)
-    parser.add_argument("--max_tokens", type=int, default=384)
+    parser.add_argument("--max_tokens", type=int, default=512)
     parser.add_argument("--stop_token", type=str, default=None)
     parser.add_argument("--inp_task_file", type=str, default="")
     parser.add_argument("--num_instructions", type=int, default=1)
@@ -271,31 +270,29 @@ if __name__ == "__main__":
             model_name=args.model,
             max_total_tokens=16_384,
             max_input_tokens=16_384 - 512,
-            max_new_tokens=512,
+            max_new_tokens=args.max_tokens,
             temperature=args.temperature,
         )
     elif args.use_together_ai:
         # use a reasonably high temperature to get multiple trajectories
         # TogetherAI uses Turbo postfix for quantized models
+        from agentlab.llm.chat_api import TogetherAIModelArgs
         chat_model_args = TogetherAIModelArgs(
             model_name=f"{args.model}-Turbo",
             max_total_tokens=16_384,
             max_input_tokens=16_384 - 512,
-            max_new_tokens=512,
+            max_new_tokens=args.max_tokens,
             temperature=args.temperature,
         )
     else:
         chat_model_args = SelfHostedModelArgs(
             model_name=args.model,
-            max_total_tokens=16_384,
-            max_input_tokens=16_384 - 512,
-            max_new_tokens=512,
+            max_total_tokens=20000,
+            max_input_tokens=20000 - 512,
+            max_new_tokens=args.max_tokens,
             backend="vllm",
             n_retry_server=4,
-            temperature=args.temperature,
-            stop_token=args.stop_token,
-            top_p=args.top_p,
-            port_num=args.port_num,
+            temperature=args.temperature
         )
 
     if args.data == "nnetnav6k":
