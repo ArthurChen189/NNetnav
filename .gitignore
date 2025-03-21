@@ -2,6 +2,7 @@
 log_files/
 *.ipynb
 my_webarena*/**
+my_webvoyager*/**
 nnetnav.egg-info/
 *.jsonl
 export_envvars_openai.sh
