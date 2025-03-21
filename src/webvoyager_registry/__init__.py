@@ -35,9 +35,16 @@ def get_configs():
 
 configs = get_configs()
 ALL_WEBVOYAGER_TASK_IDS = []
-FILTERED_WEBVOYAGER_TASK_IDS = []
+FILTER_WORDS = ["flights", "booking"]
 
 for idx, _c in enumerate(configs):
+    should_filter = False
+    for word in FILTER_WORDS:
+        if word.lower() in _c["web_name"].lower():
+            should_filter = True
+            break
+    if should_filter:
+        continue
     task_id = _c["id"]
     # replace all " " with "_"
     task_id = task_id.replace(" ", "_")
@@ -53,8 +60,3 @@ for idx, _c in enumerate(configs):
         },
     )
     ALL_WEBVOYAGER_TASK_IDS.append(gym_id)
-    if _c["id"].lower() in ["google_flights", "booking"]:
-        FILTERED_WEBVOYAGER_TASK_IDS.append(gym_id)
-
-assert len(ALL_WEBVOYAGER_TASK_IDS) == 643, "There are 643 tasks in the WebVoyager dataset, but the registry only has %d tasks" % len(ALL_WEBVOYAGER_TASK_IDS)
-assert len(FILTERED_WEBVOYAGER_TASK_IDS) == 557, "There are 557 tasks in the WebVoyager dataset, but the registry only has %d tasks" % len(FILTERED_WEBVOYAGER_TASK_IDS)

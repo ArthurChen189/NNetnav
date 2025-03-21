@@ -49,7 +49,6 @@ import nnetnav_registry
 import webvoyager_registry
 from bgym import ExpArgs, EnvArgs
 from nnetnav_registry import ALL_OPENENDED_WEBARENA_TASK_IDS, ALL_OPENWEB_TASK_IDS
-from webvoyager_registry import ALL_WEBVOYAGER_TASK_IDS, FILTERED_WEBVOYAGER_TASK_IDS
 
 from evaluation.evaluation_harness import evaluator_router
 from agent import InstructionGenerator
@@ -345,8 +344,9 @@ if __name__ == "__main__":
             )
             for idx, task in enumerate(ALL_WEBARENA_TASK_IDS)
         ]
-    elif args.data == "webvoyager-all":
-        # this has all 643 tasks
+    elif args.data == "webvoyager":
+        # this has all 557 tasks
+        from webvoyager_registry import ALL_WEBVOYAGER_TASK_IDS
         env_args_list = [
             EnvArgs(
                 task_name=task,
@@ -354,17 +354,6 @@ if __name__ == "__main__":
                 max_steps=20,
             )
             for task in ALL_WEBVOYAGER_TASK_IDS
-        ]
-    elif args.data == "webvoyager":
-        # this is the default setting used in the paper, which has 557 tasks, filtered out the booking and google flights tasks
-        # "as they are no longer feasible"
-        env_args_list = [
-            EnvArgs(
-                task_name=task,
-                task_seed=0,
-                max_steps=20,
-            )
-            for task in FILTERED_WEBVOYAGER_TASK_IDS
         ]
     elif args.data == "openended":
         # start by asking for a URL
