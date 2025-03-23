@@ -9,6 +9,7 @@ import glob
 import pickle
 import gzip
 from openai import OpenAI
+from tqdm import tqdm
 
 SYSTEM_PROMPT = """As an evaluator, you will be presented with three primary components to assist you in your role:
 
@@ -154,6 +155,9 @@ def auto_eval_by_gpt4v(process_dir, openai_client, api_model, img_num):
     print()
     return auto_eval_res
 
+def is_valid_dir(dir_path):
+    stringified_dir_path = str(dir_path)
+    return os.path.isdir(dir_path) and not stringified_dir_path.startswith("_") and "webvoyager" in stringified_dir_path
 
 def main():
     parser = argparse.ArgumentParser()
@@ -168,13 +172,13 @@ def main():
     client = OpenAI(api_key=api_key)
 
     web_task_res = {}
-    for file_dir in glob.glob(os.path.join(args.process_dir, "*")):
-        if os.path.isdir(file_dir):
-            response = auto_eval_by_gpt4v(
+    all_dir_paths = [f for f in glob.glob(os.path.join(args.process_dir, "*")) if is_valid_dir(f)]
+    for file_dir in tqdm(all_dir_paths):
+        response = auto_eval_by_gpt4v(
                 file_dir, client, args.api_model, args.max_attached_imgs
             )
-            web_task_res[file_dir] = response
-    with open(f"{args.process_dir}/result.pickle", "wb") as writer:
+        web_task_res[file_dir] = response
+    with open(f"{args.process_dir}/all_result.pickle", "wb") as writer:
         pickle.dump(web_task_res, writer)
 
 if __name__ == "__main__":

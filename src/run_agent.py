@@ -347,6 +347,8 @@ if __name__ == "__main__":
     elif args.data == "webvoyager":
         # this has all 557 tasks
         from webvoyager_registry import ALL_WEBVOYAGER_TASK_IDS
+        if len(ALL_WEBVOYAGER_TASK_IDS) != 557:
+            raise ValueError(f"Expected 557 tasks, got {len(ALL_WEBVOYAGER_TASK_IDS)}")
         env_args_list = [
             EnvArgs(
                 task_name=task,

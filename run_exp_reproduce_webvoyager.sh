@@ -1,12 +1,12 @@
 # load all the environment variables
 source export_envvars_wa.sh # we need to export webarena ports as env vars for browser_gym to work properly due to import
-source export_envvars_openai.sh
+# source export_envvars_openai.sh
 export TOKENIZER_DIR="stanfordnlp/llama8b-nnetnav-live"
 export VLLM_API_KEY="nnetnav-live" 
 export VLLM_PORT_NUM=8000
 
 MODEL=stanfordnlp/llama8b-nnetnav-live
-RESULT_DIR="my_webvoyager_results_with_nnetnav_live_test_2"
+RESULT_DIR="my_webvoyager_results_with_nnetnav_live"
 DATA=webvoyager
 
 # run the experiment
