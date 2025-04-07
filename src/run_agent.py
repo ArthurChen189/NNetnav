@@ -49,6 +49,7 @@ import nnetnav_registry
 import webvoyager_registry
 from bgym import ExpArgs, EnvArgs
 from nnetnav_registry import ALL_OPENENDED_WEBARENA_TASK_IDS, ALL_OPENWEB_TASK_IDS
+from webvoyager_registry import ALL_WEBVOYAGER_TASK_IDS, TASK_COUNTER_MAP
 
 from evaluation.evaluation_harness import evaluator_router
 from agent import InstructionGenerator
@@ -150,6 +151,7 @@ def config() -> argparse.Namespace:
     parser.add_argument("--stop_token", type=str, default=None)
     parser.add_argument("--inp_task_file", type=str, default="")
     parser.add_argument("--num_instructions", type=int, default=1)
+    parser.add_argument("--webvoyager_task", type=str, default="all", help="Task to run on webvoyager")
     parser.add_argument(
         "--sample_freq", type=int, default=1, help="If not 1, sample every n tasks"
     )
@@ -345,17 +347,17 @@ if __name__ == "__main__":
             for idx, task in enumerate(ALL_WEBARENA_TASK_IDS)
         ]
     elif args.data == "webvoyager":
-        # this has all 557 tasks
-        from webvoyager_registry import ALL_WEBVOYAGER_TASK_IDS
-        if len(ALL_WEBVOYAGER_TASK_IDS) != 557:
-            raise ValueError(f"Expected 557 tasks, got {len(ALL_WEBVOYAGER_TASK_IDS)}")
+        # this has all 557 tasks in total
+        all_webvoyager_task_ids = ALL_WEBVOYAGER_TASK_IDS
+        if len(all_webvoyager_task_ids) != TASK_COUNTER_MAP[os.environ.get("TASK", "all")]:
+            raise ValueError(f"Expected {TASK_COUNTER_MAP[os.environ.get('TASK', 'all')]} tasks, got {len(all_webvoyager_task_ids)}")
         env_args_list = [
             EnvArgs(
                 task_name=task,
                 task_seed=0,
                 max_steps=20,
             )
-            for task in ALL_WEBVOYAGER_TASK_IDS
+            for task in all_webvoyager_task_ids
         ]
     elif args.data == "openended":
         # start by asking for a URL

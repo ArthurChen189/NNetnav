@@ -10,7 +10,7 @@ import pickle
 import gzip
 from openai import OpenAI
 from tqdm import tqdm
-
+from pathlib import Path
 SYSTEM_PROMPT = """As an evaluator, you will be presented with three primary components to assist you in your role:
 
 1. Web Task Instruction: This is a clear and specific directive provided in natural language, detailing the online activity to be carried out. These requirements may include conducting searches, verifying information, comparing prices, checking availability, or any other action relevant to the specified web service (such as Amazon, Apple, ArXiv, BBC News, Booking etc).
@@ -155,9 +155,18 @@ def auto_eval_by_gpt4v(process_dir, openai_client, api_model, img_num):
     print()
     return auto_eval_res
 
-def is_valid_dir(dir_path):
-    stringified_dir_path = str(dir_path)
-    return os.path.isdir(dir_path) and not stringified_dir_path.startswith("_") and "webvoyager" in stringified_dir_path
+def is_valid_dir(dir_path, task):
+    if not dir_path.is_dir():
+        return False
+    if dir_path.stem.startswith("_"):
+        return False
+    if "webvoyager" not in dir_path.parent.stem:
+        return False
+    if task != "all":
+        task_name = re.search(r'nnetnav_(.*)_p\d+', dir_path.parent.stem).group(1)
+        if task_name.lower() != task.lower():
+            return False
+    return True
 
 def main():
     parser = argparse.ArgumentParser()
@@ -166,18 +175,19 @@ def main():
         "--api_model", default="gpt-4o", type=str, help="api model name"
     )
     parser.add_argument("--max_attached_imgs", type=int, default=15)
+    parser.add_argument("--webvoyager_task", type=str, default="all")
     args = parser.parse_args()
 
     api_key = os.getenv("OPENAI_API_KEY")
     client = OpenAI(api_key=api_key)
 
     web_task_res = {}
-    all_dir_paths = [f for f in glob.glob(os.path.join(args.process_dir, "*")) if is_valid_dir(f)]
+    all_dir_paths = [f for f in Path(args.process_dir).glob("*") if is_valid_dir(f, args.webvoyager_task)]
     for file_dir in tqdm(all_dir_paths):
         response = auto_eval_by_gpt4v(
-                file_dir, client, args.api_model, args.max_attached_imgs
+                str(file_dir), client, args.api_model, args.max_attached_imgs
             )
-        web_task_res[file_dir] = response
+        web_task_res[str(file_dir)] = response
     with open(f"{args.process_dir}/all_result.pickle", "wb") as writer:
         pickle.dump(web_task_res, writer)
 

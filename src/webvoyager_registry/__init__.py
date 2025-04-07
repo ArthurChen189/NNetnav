@@ -1,5 +1,6 @@
 import playwright.sync_api
 import json
+import os
 
 # we use a global playwright instance
 _PLAYWRIGHT = None
@@ -35,14 +36,39 @@ def get_configs():
 
 configs = get_configs()
 ALL_WEBVOYAGER_TASK_IDS = []
-FILTER_WORDS = ["flights", "booking"]
 
+TASK_COUNTER_MAP = {
+    'allrecipes': 45,
+    'amazon': 41,
+    'apple': 43,
+    'arxiv': 43,
+    'bbc_news': 42,
+    'coursera': 42,
+    'cambridge_dictionary': 43,
+    'espn': 44,
+    'github': 41,
+    'google_map': 41,
+    'google_search': 43,
+    'huggingface': 43,
+    'wolfram_alpha': 46,
+    'all': 557
+}
+
+FILTER_WORDS = ["flights", "booking"]
+TASK = os.environ.get("TASK", "all")
+print("-" * 100)
+print(f"TASK: {TASK}")
+print("-" * 100)
 for idx, _c in enumerate(configs):
+    web_name = _c["web_name"]
+    display_web_name = web_name.replace(" ", "_").lower()
     should_filter = False
     for word in FILTER_WORDS:
-        if word.lower() in _c["web_name"].lower():
+        if word.lower() in display_web_name:
             should_filter = True
             break
+    if TASK.lower() != "all" and TASK.lower() != display_web_name:
+        should_filter = True
     if should_filter:
         continue
     task_id = _c["id"]
@@ -53,7 +79,7 @@ for idx, _c in enumerate(configs):
         gym_id,
         WebVoyagerTask,
         task_kwargs={
-            "web_name": _c["web_name"],
+            "web_name": web_name,
             "id": _c["id"],
             "goal": _c["ques"],
             "start_url": _c["web"],
